@@ -191,6 +191,7 @@
 #'   mult        = 100000
 #' )
 #'
+#' @importFrom stats aggregate ave qchisq qf qgamma qnorm
 #' @export
 directsrr <- function(data,
                      event        = "events",

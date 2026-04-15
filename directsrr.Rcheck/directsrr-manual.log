@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.29 (TeX Live 2026) (preloaded format=pdflatex 2026.4.14)  15 APR 2026 20:29
+This is pdfTeX, Version 3.141592653-2.6-1.40.29 (TeX Live 2026) (preloaded format=pdflatex 2026.4.15)  15 APR 2026 22:56
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -366,29 +366,30 @@ Overfull \hbox (26.40773pt too wide) in paragraph at lines 186--190
 [3]
 LaTeX Font Info:    Font shape `T1/zi4/m/n' will be
 (Font)              scaled to size 9.0pt on input line 206.
- [4]
-No file Rd2.ind.
-[5] (./Rd2.aux)
+ [4] (./Rd2.ind [5] [6
+
+
+]) (./Rd2.aux)
  ***********
 LaTeX2e <2025-11-01>
 L3 programming layer <2026-03-20>
  ***********
 Package rerunfilecheck Info: File `Rd2.out' has not changed.
-(rerunfilecheck)             Checksum: 1E69C45A066C1C419E0ECF66E14A6014;267.
+(rerunfilecheck)             Checksum: 6E01741026077BD065653A01ED33EE01;333.
  ) 
 Here is how much of TeX's memory you used:
- 10292 strings out of 469339
- 156785 string characters out of 5464315
- 569172 words of memory out of 5000000
- 38941 multiletter control sequences out of 15000+600000
- 659986 words of font info for 79 fonts, out of 8000000 for 9000
+ 10301 strings out of 469339
+ 156848 string characters out of 5464867
+ 569148 words of memory out of 5000000
+ 38945 multiletter control sequences out of 15000+600000
+ 661093 words of font info for 80 fonts, out of 8000000 for 9000
  14 hyphenation exceptions out of 8191
  92i,5n,95p,253b,635s stack positions out of 10000i,1000n,20000p,200000b,200000s
-<c:/Users/email/AppData/Roaming/TinyTeX/texmf-dist/fonts/type1/public/inconsolata/Inconsolata-zi4r.pfb><c:/Users/email/AppData/Roaming/TinyTeX/texmf-dist/fonts/type1/urw/times/utmb8a.pfb><c:/Users/email/AppData/Roaming/TinyTeX/texmf-dist/fonts/type1/urw/times/utmr8a.pfb><c:/Users/email/AppData/Roaming/TinyTeX/texmf-dist/fonts/type1/urw/times/utmr8a.pfb><c:/Users/email/AppData/Roaming/TinyTeX/texmf-dist/fonts/type1/urw/times/utmri8a.pfb>
-Output written on Rd2.pdf (5 pages, 84955 bytes).
+<c:/Users/email/AppData/Roaming/TinyTeX/texmf-dist/fonts/type1/public/inconsolata/Inconsolata-zi4r.pfb><c:/Users/email/AppData/Roaming/TinyTeX/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy10.pfb><c:/Users/email/AppData/Roaming/TinyTeX/texmf-dist/fonts/type1/urw/times/utmb8a.pfb><c:/Users/email/AppData/Roaming/TinyTeX/texmf-dist/fonts/type1/urw/times/utmr8a.pfb><c:/Users/email/AppData/Roaming/TinyTeX/texmf-dist/fonts/type1/urw/times/utmr8a.pfb><c:/Users/email/AppData/Roaming/TinyTeX/texmf-dist/fonts/type1/urw/times/utmri8a.pfb>
+Output written on Rd2.pdf (6 pages, 93853 bytes).
 PDF statistics:
- 94 PDF objects out of 1000 (max. 8388607)
- 76 compressed objects within 1 object stream
- 23 named destinations out of 1000 (max. 500000)
- 17 words of extra memory for PDF output out of 10000 (max. 10000000)
+ 112 PDF objects out of 1000 (max. 8388607)
+ 91 compressed objects within 1 object stream
+ 25 named destinations out of 1000 (max. 500000)
+ 25 words of extra memory for PDF output out of 10000 (max. 10000000)
 

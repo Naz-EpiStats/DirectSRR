@@ -29,7 +29,7 @@ VignetteBuilder: knitr
 URL: https://github.com/Naz-EpiStats/DirectSRR
 BugReports: https://github.com/Naz-EpiStats/DirectSRR/issues
 NeedsCompilation: no
-Packaged: 2026-04-15 19:00:11 UTC; email
+Packaged: 2026-04-15 21:55:08 UTC; email
 Author: Nazrul Islam [aut, cre] (ORCID:
     <https://orcid.org/0000-0003-3982-4325>)
 Maintainer: Nazrul Islam <naz@mail.harvard.edu>
