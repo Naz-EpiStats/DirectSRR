@@ -1,0 +1,262 @@
+---
+title: "Getting started with directsrr"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Getting started with directsrr}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include=FALSE}
+knitr::opts_chunk$set(collapse=TRUE, comment="#>")
+library(directsrr)
+```
+
+## Overview
+
+`directsrr` computes directly standardised rates (DSR) with confidence intervals (CI) and compares groups using standardised rate ratios (SRR) and standardised rate differences (SRD).
+
+The main function, `directsrr()`, implements the gamma-based interval of Tiwari, Clegg, and Zou (2006) and the Dobson et al. (1991) interval. The package is adapted from the Stata command `distrate` (Consonni et al. 2012), but uses an ordinary data frame with the standard population supplied as a column. It also supports standardisation by multiple variables such as age and sex, and grouping by one or more variables.
+
+---
+
+## Case 1 — Standardise by age, compare one grouping variable
+
+The simplest and most common use: standardise by a single age column and
+compare two or more groups.
+
+```{r}
+data(directsrr_ExampleData)
+directsrr_ExampleData
+```
+
+```{r}
+directsrr(
+  data        = directsrr_ExampleData,
+  event       = "events",
+  pop         = "population",
+  stdpop      = "stdpop",       # one weight per age stratum
+  standstrata = "age_group",    # single standardisation variable
+  by          = "group",        # single grouping variable
+  ref         = "A",            # reference group by label
+  mult        = 100000
+)
+```
+
+---
+
+## Case 2 — Standardise by age AND sex jointly
+
+Pass a character vector to `standstrata` to standardise by more than one
+variable simultaneously. Here we use age (3 bands) × sex (2 levels) = **6
+joint strata**.
+
+**Key requirement:** `stdpop` must contain the *joint* standard-population
+weight for each (age × sex) combination — not separate marginal weights.
+The weights within each group must sum to a positive constant (they are
+normalised internally).
+
+```{r}
+age_sex_data <- data.frame(
+  age_group = rep(rep(c("18-39","40-64","65+"), each=2), 2),
+  sex       = rep(c("F","M"), 6),
+  ethnicity = rep(c("Asian","White"), each=6),
+  events    = c( 4, 5, 12, 15,  9, 12,
+                10,12, 28, 35, 22, 30),
+  population= c(1900,2000,1700,1600,320,300,
+                4800,5000,4200,4000,900,800),
+  stdpop    = rep(c(0.20,0.20, 0.20,0.20, 0.10,0.10), 2)
+)
+
+directsrr(
+  data        = age_sex_data,
+  event       = "events",
+  pop         = "population",
+  stdpop      = "stdpop",
+  standstrata = c("age_group", "sex"),   # joint standardisation
+  by          = "ethnicity",
+  ref         = "White",
+  mult        = 100000
+)
+```
+
+---
+
+## Case 3 — Stratify by two grouping variables
+
+Pass a character vector to `by` to produce one rate per combination of
+grouping variables. When `by` has multiple columns, `ref` must be a named
+list specifying a value for **every** `by` column.
+
+```{r}
+two_group_data <- data.frame(
+  age_group = rep(rep(c("18-39","40-64","65+"), each=2), 4),
+  sex       = rep(c("F","M"), 12),
+  ethnicity = rep(c("Asian","Asian","White","White"), each=6),
+  region    = rep(c("North","South","North","South"), each=6),
+  events    = c( 2, 3,  7, 9,  9,12,
+                 5, 6, 14,18, 16,22,
+                 7, 8, 18,20, 22,30,
+                12,15, 32,40, 40,55),
+  population= c(1400,1500,1300,1200, 220,200,
+                1900,2000,1900,1800, 380,350,
+                2900,3000,2600,2500, 550,500,
+                3800,4000,3700,3500, 800,700),
+  stdpop    = rep(c(0.20,0.20, 0.20,0.20, 0.10,0.10), 4)
+)
+
+directsrr(
+  data        = two_group_data,
+  event       = "events",
+  pop         = "population",
+  stdpop      = "stdpop",
+  standstrata = c("age_group", "sex"),
+  by          = c("ethnicity", "region"),
+  ref         = list(ethnicity = "White", region = "North"),  # named list
+  mult        = 100000,
+  digits_rate  = 1,
+  digits_ratio = 3
+)
+```
+
+---
+
+## Specifying the reference group: `ref` vs `ref_index`
+
+Two separate arguments remove any ambiguity about what the reference is.
+
+Use **`ref`** to identify by label — the most common approach:
+
+```{r eval=FALSE}
+# Character label
+directsrr(..., ref = "Control")
+
+# Numeric label — matches the group whose by-column value equals 2,
+# not the second row
+directsrr(..., ref = 2)
+
+# Named list for multi-column by
+directsrr(..., ref = list(arm = "Placebo", centre = "London"))
+```
+
+Use **`ref_index`** to identify by row position in the output table —
+no integer-literal tricks required:
+
+```{r eval=FALSE}
+directsrr(..., ref_index = 1)   # first row  (the default)
+directsrr(..., ref_index = 2)   # second row
+```
+
+Supplying both `ref` and `ref_index` is an error. When neither is given
+and `by` is not `NULL`, the first output row is used as reference.
+
+---
+
+## Output columns
+
+| Column | Description |
+|--------|-------------|
+| `crude` | Crude (unstandardised) rate × `mult` |
+| `rateadj` | Directly standardised rate × `mult` |
+| `lb_gam` / `ub_gam` | Tiwari et al. (2006) gamma CI |
+| `se_gam` | SE from the Tiwari variance |
+| `lb_dob` / `ub_dob` | Dobson et al. (1991) CI (`ub_dob = NA` for zero-event groups; use `ub_gam` instead) |
+| `srr` | Standardised rate ratio vs reference (`NA` if reference rate is zero) |
+| `lb_srr` / `ub_srr` | F-distribution CI for the SRR |
+| `srd` | Standardised rate difference vs reference (always computed) |
+| `lb_srd` / `ub_srd` | Normal CI for the SRD |
+
+## Controlling zero-event notifications
+
+When `dobson = TRUE` and a group has zero events, `ub_dob` is `NA`.
+The `notify` argument controls how this is signalled:
+
+```{r eval=FALSE}
+directsrr(..., notify = "warn")     # default — warning(), catchable with tryCatch()
+directsrr(..., notify = "message")  # message(), suppressible with suppressMessages()
+directsrr(..., notify = "silent")   # no output — useful in loops or simulations
+```
+
+## Merging the standard population
+
+```{r eval=FALSE}
+std <- data.frame(
+  age_band   = c("18-39", "40-64", "65+"),
+  esp_weight = c(0.4, 0.4, 0.2)
+)
+mydata <- merge(mydata, std, by = "age_band")
+```
+
+For joint age-sex standardisation, derive joint weights from marginals:
+
+```{r eval=FALSE}
+age_w <- c("18-39"=0.40, "40-64"=0.40, "65+"=0.20)
+sex_w <- c("F"=0.50, "M"=0.50)
+
+std_joint <- expand.grid(age_band=names(age_w), sex=names(sex_w))
+std_joint$stdpop <- age_w[std_joint$age_band] * sex_w[std_joint$sex]
+mydata <- merge(mydata, std_joint, by = c("age_band","sex"))
+```
+
+## Single pooled rate
+
+Omit `by` for one overall rate with no comparison:
+
+```{r}
+directsrr(
+  data        = directsrr_ExampleData,
+  event       = "events",
+  pop         = "population",
+  stdpop      = "stdpop",
+  standstrata = "age_group",
+  mult        = 100000
+)
+```
+
+## References
+
+Tiwari RC, Clegg LX, Zou Z (2006). Efficient interval estimation for age-adjusted cancer rates. *Statistical Methods in Medical Research*, **15**(6), 547-569.
+
+Fay MP, Feuer EJ (1997). Confidence intervals for directly standardized rates: A method based on the gamma distribution. *Statistics in Medicine*, **16**(7), 791-801. DOI: 10.1002/(SICI)1097-0258(19970415)16:7<791::AID-SIM500>3.0.CO;2-#
+
+Dobson AJ, Kuulasmaa K, Eberle E, Scherer J (1991). Confidence intervals for weighted sums of Poisson parameters. *Statistics in Medicine*, **10**(3), 457-462. DOI: 10.1002/sim.4780100317
+
+Consonni D, Coviello E, Buzzoni C, Mensi C (2012). A command to calculate age-standardized rates with efficient interval estimation. *Stata Journal*, **12**(4), 688-701.
+
+---
+
+## Individual participant data (IPD)
+
+`directsrr()` accepts both **aggregate** and **individual-level** data.
+The internal `aggregate(..., FUN = sum)` step collapses rows by
+(group x age stratum) before any calculation, so IPD is handled automatically.
+
+For IPD set `event` to a 0/1 column and `pop` to each participant's
+person-time (e.g. years of follow-up). Merge the standard-population weight
+onto the IPD by age stratum first.
+
+```{r eval=FALSE}
+# IPD: one row per participant
+std_pop <- data.frame(age_group = c("18-39","40-64","65+"),
+                      stdpop    = c(0.4, 0.4, 0.2))
+ipd <- merge(my_individual_data, std_pop, by = "age_group")
+# columns needed: age_group, event (0/1), follow_up_years, stdpop, group
+
+directsrr(ipd,
+         event       = "event",
+         pop         = "follow_up_years",
+         stdpop      = "stdpop",
+         standstrata = "age_group",
+         by          = "group",
+         ref         = "Control",
+         mult        = 100000)
+```
+
+**Float person-time** is handled correctly throughout. The `N` column in
+the output preserves decimal places (e.g. 12.8 person-years) rather than
+silently rounding to 13. Use `digits_count` to control display precision.
+
+**Survey-weighted data:** if event counts are fractional after applying
+weights (e.g. 2.7 events), the Tiwari gamma CI (`lb_gam` / `ub_gam`)
+remains valid. The Dobson CI assumes integer counts; a warning is issued if
+non-integer totals are detected — rely on `ub_gam` in that case.

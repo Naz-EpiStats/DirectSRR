@@ -1,0 +1,287 @@
+\nonstopmode{}
+\documentclass[a4paper]{book}
+\usepackage[times,inconsolata,hyper]{Rd}
+\usepackage{makeidx}
+\makeatletter\@ifl@t@r\fmtversion{2018/04/01}{}{\usepackage[utf8]{inputenc}}\makeatother
+% \usepackage{graphicx} % @USE GRAPHICX@
+\makeindex{}
+\begin{document}
+\chapter*{}
+\begin{center}
+{\textbf{\huge Package `directsrr'}}
+\par\bigskip{\large \today}
+\end{center}
+\ifthenelse{\boolean{Rd@use@hyper}}{\hypersetup{pdftitle = {directsrr: Directly Standardised Rates, Rate Ratios, and Rate Differences}}}{}
+\ifthenelse{\boolean{Rd@use@hyper}}{\hypersetup{pdfauthor = {Nazrul Islam}}}{}
+\begin{description}
+\raggedright{}
+\item[Title]\AsIs{Directly Standardised Rates, Rate Ratios, and Rate Differences}
+\item[Version]\AsIs{0.1.0}
+\item[Description]\AsIs{Computes directly standardised rates (DSR) with confidence
+intervals using the gamma-based method of Tiwari, Clegg, and Zou (2006)
+<}\Rhref{https://doi.org/10.1191/1740774506cn143oa}{doi:10.1191/1740774506cn143oa}\AsIs{>, a refinement of Fay and Feuer (1997).
+Optional Dobson et al. (1991) intervals are also provided
+(<}\Rhref{https://doi.org/10.1002/sim.4780100317}{doi:10.1002/sim.4780100317}\AsIs{>). Between-group
+comparisons include standardised rate ratios (SRR), with F-distribution
+confidence intervals, and standardised rate differences (SRD), with
+normal-approximation confidence intervals based on the Tiwari variance.
+The package is adapted from the Stata command distrate (Consonni et al.,
+2012, Stata Journal 12(4):688--701), but uses a standard-population
+column in the main data frame and flexible column naming.}
+\item[License]\AsIs{GPL-3}
+\item[Encoding]\AsIs{UTF-8}
+\item[Roxygen]\AsIs{list(markdown = TRUE)}
+\item[RoxygenNote]\AsIs{7.3.3}
+\item[Depends]\AsIs{R (>= 4.0.0)}
+\item[Suggests]\AsIs{testthat (>= 3.0.0), knitr, rmarkdown}
+\item[Config/testthat/edition]\AsIs{3}
+\item[LazyData]\AsIs{true}
+\item[VignetteBuilder]\AsIs{knitr}
+\item[URL]\AsIs{}\url{https://github.com/Naz-EpiStats/DirectSRR}\AsIs{}
+\item[BugReports]\AsIs{}\url{https://github.com/Naz-EpiStats/DirectSRR/issues}\AsIs{}
+\item[NeedsCompilation]\AsIs{no}
+\item[Author]\AsIs{Nazrul Islam [aut, cre] (ORCID:
+<}\url{https://orcid.org/0000-0003-3982-4325}\AsIs{>)}
+\item[Maintainer]\AsIs{Nazrul Islam }\email{naz@mail.harvard.edu}\AsIs{}
+\end{description}
+\Rdcontents{Contents}
+\HeaderA{directsrr}{Directly Standardised Rates, Rate Ratios, and Rate Differences}{directsrr}
+%
+\begin{Description}
+Calculates directly age-standardised rates (DSR) and supports pairwise
+comparison of groups via standardised rate ratios (SRR) and standardised
+rate differences (SRD).
+
+Confidence intervals for the DSR use the gamma-distribution method of
+Tiwari, Clegg, and Zou (2006), a refinement of Fay and Feuer (1997) that
+gives empirical coverage closer to the nominal level for rare outcomes.
+The Dobson et al. (1991) interval can also be requested. SRR confidence
+limits use the F-distribution approach from Tiwari et al.; SRD limits use
+a normal approximation based on the same Tiwari variance.
+
+An R adaptation of the Stata command \code{distrate} (Consonni et al.
+2012), with the standard population as a column in \code{data} rather than
+a separate file, flexible column naming, and no run-time dependencies
+beyond base R.
+\end{Description}
+%
+\begin{Usage}
+\begin{verbatim}
+directsrr(
+  data,
+  event = "events",
+  pop = "population",
+  stdpop = "stdpop",
+  standstrata = "age_group",
+  by = NULL,
+  ref = NULL,
+  ref_index = NULL,
+  mult = 1,
+  level = 95,
+  dobson = TRUE,
+  check_pop = FALSE,
+  digits_rate = 2,
+  digits_ratio = 4,
+  digits_count = 0,
+  notify = c("warn", "message", "silent"),
+  verbose = TRUE
+)
+\end{verbatim}
+\end{Usage}
+%
+\begin{Arguments}
+\begin{ldescription}
+\item[\code{data}] A data frame in aggregate form. Multiple rows per stratum-group
+combination are summed before any calculation.
+
+\item[\code{event}] Column name for event counts. Must be non-negative.
+Non-integer values are accepted; when \code{dobson = TRUE} the function
+warns that the Dobson CI may be unreliable. Default \code{"events"}.
+
+\item[\code{pop}] Column name for person-time or population size (denominator).
+Must be strictly positive. Default \code{"population"}.
+
+\item[\code{stdpop}] Column name for the standard-population weight. Must be
+constant within each stratum and non-negative in every row; the total
+weight sum within each group must be strictly positive. Absolute counts
+and proportions are both accepted; values are normalised within each group.
+Default \code{"stdpop"}.
+
+\item[\code{standstrata}] Character vector of column name(s) defining the
+standardisation strata. Default \code{"age\_group"}.
+
+\item[\code{by}] Character vector of grouping column name(s), or \code{NULL} for
+a single pooled rate. Default \code{NULL}.
+
+\item[\code{ref}] Reference group for SRR and SRD, specified as a \strong{value} to
+match against the \code{by} column(s). Accepts:
+\begin{itemize}
+
+\item{} A \strong{character or numeric scalar} matched against the single
+\code{by} column, e.g. \code{ref = "Control"} or \code{ref = 2}.
+\item{} A \strong{named list} for multi-column \code{by}, supplying a
+value for every column, e.g.
+\code{ref = list(arm = "Placebo", centre = "London")}.
+
+\end{itemize}
+
+Supply either \code{ref} or \code{ref\_index}, not both. When both are
+\code{NULL} and \code{by} is not \code{NULL}, the first row of the
+output table is used as reference. Ignored when \code{by = NULL}.
+Default \code{NULL}.
+
+\item[\code{ref\_index}] Reference group for SRR and SRD, specified as a
+\strong{row position} in the sorted output table. A single positive whole
+number (e.g. \code{1}, \code{2}, \code{3} — no \code{L} suffix
+required). Supply either \code{ref} or \code{ref\_index}, not both.
+Ignored when \code{by = NULL}. Default \code{NULL}.
+
+\item[\code{mult}] Rate multiplier. Default \code{1}.
+
+\item[\code{level}] Confidence level as a percentage. Default \code{95}.
+
+\item[\code{dobson}] Logical. Include Dobson et al. (1991) limits? Default \code{TRUE}.
+
+\item[\code{check\_pop}] Logical. Error if \code{event > pop} in any row? Appropriate
+for binomial-style data; leave \code{FALSE} for person-time denominators.
+Default \code{FALSE}.
+
+\item[\code{digits\_rate}] Decimal places for rate and SRD columns. Default \code{2}.
+
+\item[\code{digits\_ratio}] Decimal places for SRR columns. Default \code{4}.
+
+\item[\code{digits\_count}] Decimal places for count columns. Default \code{0}.
+
+\item[\code{notify}] Character. Controls how the function signals that Dobson
+limits are unavailable for zero-event groups (when \code{dobson = TRUE}).
+\begin{itemize}
+
+\item{} \code{"warn"} (default) — issues a \code{warning()}, catchable
+with \code{tryCatch()}. Recommended because \code{ub\_dob = NA}
+changes how the interval should be interpreted.
+\item{} \code{"message"} — emits a \code{message()}, suppressible with
+\code{suppressMessages()}.
+\item{} \code{"silent"} — no output. Useful in loops or simulations.
+
+\end{itemize}
+
+Has no effect when there are no zero-event groups or \code{dobson = FALSE}.
+
+\item[\code{verbose}] Print a summary table? Default \code{TRUE}.
+\end{ldescription}
+\end{Arguments}
+%
+\begin{Value}
+An invisible data frame with one row per group containing:
+\code{events}, \code{N}, \code{crude}, \code{rateadj},
+\code{lb\_gam}/\code{ub\_gam}, \code{se\_gam},
+\code{lb\_dob}/\code{ub\_dob} (if \code{dobson = TRUE}),
+\code{srr}/\code{lb\_srr}/\code{ub\_srr},
+\code{srd}/\code{lb\_srd}/\code{ub\_srd}
+(last six only when \code{by} is not \code{NULL}).
+Rate and SRD columns are on the multiplied scale; SRR is dimensionless.
+\end{Value}
+%
+\begin{References}
+Consonni D, Coviello E, Buzzoni C, Mensi C (2012). A command to calculate
+age-standardized rates with efficient interval estimation.
+\emph{Stata Journal}, \strong{12}(4), 688--701.
+\Rhref{https://doi.org/10.1177/1536867X1201200408}{doi:10.1177\slash{}1536867X1201200408}
+
+Tiwari RC, Clegg LX, Zou Z (2006). Efficient interval estimation for
+age-adjusted cancer rates. \emph{Statistical Methods in Medical Research},
+\strong{15}(6), 547--569. \Rhref{https://doi.org/10.1191/1740774506cn143oa}{doi:10.1191\slash{}1740774506cn143oa}
+
+Fay MP, Feuer EJ (1997). Confidence intervals for directly standardized
+rates: A method based on the gamma distribution.
+\emph{Statistics in Medicine}, \strong{16}(7), 791--801.
+
+Dobson AJ, Kuulasmaa K, Eberle E, Scherer J (1991). Confidence intervals
+for weighted sums of Poisson parameters.
+\emph{Statistics in Medicine}, \strong{10}(3), 457--462.
+\Rhref{https://doi.org/10.1002/sim.4780100317}{doi:10.1002\slash{}sim.4780100317}
+\end{References}
+%
+\begin{Examples}
+\begin{ExampleCode}
+data(directsrr_ExampleData)
+
+# Reference group identified by label
+directsrr(
+  data        = directsrr_ExampleData,
+  event       = "events",
+  pop         = "population",
+  stdpop      = "stdpop",
+  standstrata = "age_group",
+  by          = "group",
+  ref         = "A",
+  mult        = 100000,
+  digits_rate  = 2,
+  digits_ratio = 4
+)
+
+# Reference group identified by row position (no L suffix needed)
+directsrr(
+  data        = directsrr_ExampleData,
+  event       = "events",
+  pop         = "population",
+  stdpop      = "stdpop",
+  standstrata = "age_group",
+  by          = "group",
+  ref_index   = 1,
+  mult        = 100000
+)
+
+# Single pooled rate, no comparison
+directsrr(
+  data        = directsrr_ExampleData,
+  event       = "events",
+  pop         = "population",
+  stdpop      = "stdpop",
+  standstrata = "age_group",
+  mult        = 100000
+)
+
+\end{ExampleCode}
+\end{Examples}
+\HeaderA{directsrr\_ExampleData}{Example dataset}{directsrr.Rul.ExampleData}
+\keyword{datasets}{directsrr\_ExampleData}
+%
+\begin{Description}
+Simulated aggregate event data for three study groups across three age
+strata, intended for use in package examples and tests.
+\end{Description}
+%
+\begin{Usage}
+\begin{verbatim}
+directsrr_ExampleData
+\end{verbatim}
+\end{Usage}
+%
+\begin{Format}
+A data frame with 9 rows and 5 columns:
+\begin{description}
+
+\item[\code{age\_group}] Age stratum: \code{"18-39"}, \code{"40-64"}, or \code{"65+"}.
+\item[\code{group}] Study group: \code{"A"}, \code{"B"}, or \code{"C"}.
+\item[\code{events}] Integer event count for this stratum and group.
+\item[\code{population}] Person-time or population size.
+\item[\code{stdpop}] Standard population weight for the age stratum
+(proportions: 0.4, 0.4, 0.2).
+
+\end{description}
+
+\end{Format}
+%
+\begin{Source}
+Simulated; no real patients.
+\end{Source}
+%
+\begin{Examples}
+\begin{ExampleCode}
+data(directsrr_ExampleData)
+head(directsrr_ExampleData)
+\end{ExampleCode}
+\end{Examples}
+\printindex{}
+\end{document}

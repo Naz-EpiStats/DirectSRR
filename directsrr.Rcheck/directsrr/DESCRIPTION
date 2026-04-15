@@ -1,0 +1,36 @@
+Package: directsrr
+Title: Directly Standardised Rates, Rate Ratios, and Rate Differences
+Version: 0.1.0
+Authors@R: 
+    person("Nazrul", "Islam",
+      email = "naz@mail.harvard.edu",
+      role = c("aut", "cre"),
+      comment = c(ORCID = "0000-0003-3982-4325"))
+Description: Computes directly standardised rates (DSR) with confidence
+    intervals using the gamma-based method of Tiwari, Clegg, and Zou (2006)
+    <doi:10.1191/1740774506cn143oa>, a refinement of Fay and Feuer (1997).
+    Optional Dobson et al. (1991) intervals are also provided
+    (<doi:10.1002/sim.4780100317>). Between-group
+    comparisons include standardised rate ratios (SRR), with F-distribution
+    confidence intervals, and standardised rate differences (SRD), with
+    normal-approximation confidence intervals based on the Tiwari variance.
+    The package is adapted from the Stata command distrate (Consonni et al.,
+    2012, Stata Journal 12(4):688--701), but uses a standard-population
+    column in the main data frame and flexible column naming.
+License: GPL-3
+Encoding: UTF-8
+Roxygen: list(markdown = TRUE)
+RoxygenNote: 7.3.3
+Depends: R (>= 4.0.0)
+Suggests: testthat (>= 3.0.0), knitr, rmarkdown
+Config/testthat/edition: 3
+LazyData: true
+VignetteBuilder: knitr
+URL: https://github.com/Naz-EpiStats/DirectSRR
+BugReports: https://github.com/Naz-EpiStats/DirectSRR/issues
+NeedsCompilation: no
+Packaged: 2026-04-15 19:00:11 UTC; email
+Author: Nazrul Islam [aut, cre] (ORCID:
+    <https://orcid.org/0000-0003-3982-4325>)
+Maintainer: Nazrul Islam <naz@mail.harvard.edu>
+Built: R 4.5.3; ; 2026-04-15 19:28:13 UTC; windows
